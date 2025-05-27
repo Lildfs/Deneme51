@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Çekim Seçimi - Açıklama & Görsel</title>
+  <style>
+body {
+  background: #667eea;
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  color: white;
+}
+
+#search {
+  font-size: 16px;
+  padding: 10px;
+  max-width: 400px;
+  width: 100%;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+}
+
+.icon-list {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  height: 1400px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 32px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  margin: 0 auto;
+  padding: 0;
+  user-select: none;
+  overflow: hidden;
+}
+
+.icon-container {
+  position: absolute;
+  width: 128px;
+  height: 128px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: none;
+}
+
+.icon-container img {
+  width: 96px;
+  height: 96px;
+  user-select: none;
+  pointer-events: none;
+  border-radius: 16px;
+}
+
+/* Pozisyonlar - insan vücudu düzeni */
+.kafa {
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.gogus {
+  top: 180px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.el {
+  top: 180px;
+  left: 0%;
+}
+.omurga {
+  top: 180px;
+  right: 0%;
+}
+.kalca {
+  top: 360px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.ayak {
+  top: 550px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Modal panel boyutları da sadeleştirilmiş */
+#selection-panel {
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  color: #333;
+  border-radius: 16px;
+  padding: 20px;
+  width: 320px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1000;
+}
+
+#selection-panel h3 {
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+#view-type {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+#auto-description {
+  font-size: 0.95rem;
+  background: #f3f3f3;
+  padding: 10px;
+  border-radius: 8px;
+  color: #333;
+  min-height: 60px;
+}
+
+#auto-image {
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  max-height: 150px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+#close-btn {
+  padding: 10px;
+  background: #667eea;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: bold;
+  width: 100%;
+  transition: background 0.3s;
+}
+
+#close-btn:hover {
+  background: #5561c1;
+}
+
+#modal-overlay {
+  display: none;
+  position: fixed;
+  top:0; left:0; right:0; bottom:0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Arama Kutusu -->
+  <input
+    type="text"
+    id="search"
+    placeholder="Bölge veya çekim türü ara..."
+    oninput="filterIcons()"
+  />
+
+  <!-- İnsan bedeni ve ikonlar -->
+  <div class="icon-list" id="icon-list">
+    <div class="icon-container kafa" data-area="Kafa" onclick="openMenu(this)">
+      <img
+        src="https://cdn-icons-png.freepik.com/512/14858/14858066.png"
+        alt="Kafa"
+      />
+    </div>
+    <div class="icon-container gogus" data-area="Göğüs" onclick="openMenu(this)">
+      <img
+        src="https://cdn-icons-png.freepik.com/512/14858/14858032.png"
+        alt="Göğüs"
+      />
+    </div>
+    <div
+      class="icon-container omurga"
+      data-area="Omurga"
+      onclick="openMenu(this)"
+    >
+      <img
+        src="https://cdn-icons-png.freepik.com/512/14858/14858114.png"
+        alt="Omurga"
+      />
+    </div>
+    <div class="icon-container el" data-area="El" onclick="openMenu(this)">
+      <img
+        src="https://cdn-icons-png.freepik.com/512/14858/14858066.png"
+        alt="El"
+      />
+    </div>
+    <div class="icon-container kalca" data-area="Kalça" onclick="openMenu(this)">
+      <img
+        src="https://cdn-icons-png.freepik.com/512/14858/14858032.png"
+        alt="Kalça"
+      />
+    </div>
+    <div class="icon-container ayak" data-area="Ayak" onclick="openMenu(this)">
+      <img
+        src="https://cdn-icons-png.freepik.com/512/14858/14858114.png"
+        alt="Ayak"
+      />
+    </div>
+  </div>
+
+  <!-- Modal Overlay -->
+  <div id="modal-overlay" onclick="closeMenu()" style="display: none"></div>
+
+  <!-- Seçim Paneli -->
+  <div id="selection-panel" style="display: none">
+    <h3 id="area-title">Kafa</h3>
+    <select id="view-type">
+      <option value="">Çekim seçiniz</option>
+      <option value="Kafa PA">Kafa PA</option>
+      <option value="Kafa Lateral">Kafa Lateral</option>
+      <option value="Kafa Waters">Kafa Waters</option>
+    </select>
+    <div id="auto-description">
+      Hasta frontal pozisyonda durur, merkezi ışın glabella üzerinden
+      gönderilir.
+    </div>
+    <img
+      id="auto-image"
+      src="https://cdn-icons-png.freepik.com/512/10034/10034567.png"
+      alt="Kafa PA"
+      style="display: block"
+    />
+    <button id="close-btn" onclick="closeMenu()">Kapat</button>
+  </div>
+
+  <script>
+    const shootingOptions = {
+      Kafa: {
+        "Kafa PA": {
+          desc:
+            "Hasta frontal pozisyonda durur, merkezi ışın glabella üzerinden gönderilir.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034567.png",
+        },
+        "Kafa Lateral": {
+          desc:
+            "Hasta yan pozisyondadır, merkezi ışın temporal kemik hizasındadır.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034568.png",
+        },
+        "Kafa Waters": {
+          desc:
+            "Hasta çenesini yukarı kaldırır, açılı ışın maksiller sinüsler üzerine yöneltilir.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034569.png",
+        },
+      },
+      Göğüs: {
+        "Göğüs PA": {
+          desc:
+            "Hasta ayakta durur, omuzlar açık, ışın arkadan öne gönderilir.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034570.png",
+        },
+        "Göğüs Lateral": {
+          desc: "Hasta yana döner, ışın vücudun yandan geçer.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034571.png",
+        },
+      },
+      Omurga: {
+        "Omurga PA": {
+          desc: "Hasta yüzüstü yatar, omurga düzlemine dik ışın gönderilir.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034572.png",
+        },
+        "Omurga Lateral": {
+          desc: "Hasta yana yatar, ışın omurga üzerinden geçer.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034573.png",
+        },
+      },
+      El: {
+        "El PA": {
+          desc: "Hasta elini düz yüzeye koyar, ışın el sırtından gönderilir.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034574.png",
+        },
+        "El Lateral": {
+          desc: "Hasta elini yana çevirir, ışın yandan geçer.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034575.png",
+        },
+      },
+      Kalça: {
+        "Kalça PA": {
+          desc: "Hasta sırtüstü, bacaklar içe çevrilmiş pozisyondadır.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034576.png",
+        },
+        "Kalça Lateral": {
+          desc: "Hasta yan yatışta, ışın kalça eklemine dik gönderilir.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034577.png",
+        },
+      },
+      Ayak: {
+        "Ayak PA": {
+          desc: "Hasta ayak tabanını filme yaslar, ışın tabandan geçer.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034578.png",
+        },
+        "Ayak Lateral": {
+          desc: "Hasta ayak yan pozisyondadır, ışın yandan geçer.",
+          img: "https://cdn-icons-png.freepik.com/512/10034/10034579.png",
+        },
+      },
+    };
+
+    const searchInput = document.getElementById("search");
+    const iconList = document.getElementById("icon-list");
+    const selectionPanel = document.getElementById("selection-panel");
+    const modalOverlay = document.getElementById("modal-overlay");
+    const areaTitle = document.getElementById("area-title");
+    const viewType = document.getElementById("view-type");
+    const autoDescription = document.getElementById("auto-description");
+    const autoImage = document.getElementById("auto-image");
+    const closeBtn = document.getElementById("close-btn");
+
+    let currentArea = null;
+
+    // İkonlara tıklanınca menüyü aç
+    function openMenu(el) {
+      currentArea = el.getAttribute("data-area");
+      areaTitle.textContent = currentArea;
+      updateViewOptions();
+      selectionPanel.style.display = "flex";
+      modalOverlay.style.display = "block";
+    }
+
+    // Menü kapatma
+    function closeMenu() {
+      selectionPanel.style.display = "none";
+      modalOverlay.style.display = "none";
+      viewType.value = "";
+      autoDescription.textContent = "";
+      autoImage.style.display = "none";
+    }
+
+    // Seçim değişince açıklama ve resmi güncelle
+    viewType.addEventListener("change", () => {
+      const selected = viewType.value;
+      if (selected && shootingOptions[currentArea]?.[selected]) {
+        autoDescription.textContent = shootingOptions[currentArea][selected].desc;
+        autoImage.src = shootingOptions[currentArea][selected].img;
+        autoImage.style.display = "block";
+      } else {
+        autoDescription.textContent = "";
+        autoImage.style.display = "none";
+      }
+    });
+
+    // View seçeneklerini güncelle
+    function updateViewOptions() {
+      const options = shootingOptions[currentArea];
+      viewType.innerHTML = `<option value="">Çekim seçiniz</option>`;
+      if (options) {
+        for (const key in options) {
+          viewType.innerHTML += `<option value="${key}">${key}</option>`;
+        }
+      }
+      autoDescription.textContent = "";
+      autoImage.style.display = "none";
+      viewType.value = "";
+    }
+
+    // Arama filtresi
+    function filterIcons() {
+      const filter = searchInput.value.toLowerCase();
+      const icons = iconList.querySelectorAll(".icon-container");
+      icons.forEach((icon) => {
+        const area = icon.getAttribute("data-area").toLowerCase();
+        if (area.includes(filter)) {
+          icon.style.display = "flex";
+        } else {
+          icon.style.display = "none";
+        }
+      });
+    }
+  </script>
+</body>
+</html>
